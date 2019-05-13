@@ -72,7 +72,7 @@
                 extent:startExtent,
                 basemap: "streets",
             });
-            var layer = new esri.layers.ArcGISDynamicMapServiceLayer("http://219.225.53.46:6080/arcgis/rest/services/MyMapService/MapServer");
+            var layer = new esri.layers.ArcGISDynamicMapServiceLayer("http://map.geoq.cn/arcgis/rest/services/ChinaOnlineStreetPurplishBlue/MapServer");
             MyMap.addLayer(layer);
 
             ToolBar = new esri.toolbars.Draw(MyMap,
