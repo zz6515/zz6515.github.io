@@ -1,0 +1,7 @@
+问题：
+遇到了错误[ Cannot read property 'add' of null ]
+原因：
+是同时执行了 var map=new Map();和map.graphics.add(graphic);使JS运行到后一句话时，map还没有实例化完成，以致于不能调用add方法。
+修改方法：
+dojo.connect(map,"onLoad",function(){
+map.graphics.add()})
