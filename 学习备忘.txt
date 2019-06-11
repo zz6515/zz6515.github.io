@@ -1,4 +1,10 @@
-﻿2019.6.9
+﻿2019.6.10
+在改变样式的颜色时，应该新建样式和原样式相同，但不能直接使用=，应该new Symbol（原样式）。也不能直接原样式.setColor 这样会改变之前已经应用过的图形的颜色。其他属性同理。
+pointstyle = ....
+greenstyle = new esri.symbol.SimpleMarkerSymbol(pointstyle)
+greenstyle.setColor(new esri.Color([255,255,0,1]))
+
+2019.6.9
 JS模拟java中类的概念。function tempclass(){
 var x;
 this.getx = function(){

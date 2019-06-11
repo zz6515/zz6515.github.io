@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>北京市政公交线路图</title>
+    <link rel="stylesheet" type="text/css" href="tundra.css" />
+    <link rel="stylesheet" type="text/css" href="esri.css" />
+    <meta charset="utf-8" />
+    <script type="text/javascript">
+        var djConfig= {
+            isDebug: true, parseOnLoad:true,
+        } ;
+
+    </script>
+    <style>
+        html, body, #main {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+        }
+        #icon{
+            float: left;
+            width: 20%;
+            height: 120px;
+            background-image :url('subway.jpg');
+            background-repeat: no-repeat;
+        }
+        #welcome{
+            float: left;
+            width: 45%;
+            height: 120px;
+            text-align: center;
+        }
+        #clock{
+            float: right;
+            width: 35%;
+            margin-top: 60px;
+        }
+
+        li{ list-style:none;
+            float:left; }
+        table, tr, td
+        {
+            border-bottom: 2px solid darkgrey;
+        }
+    </style>
+    <script type="text/javascript" src="init.js">
+    </script>
+
+
+<!--    本文中，设定二号线四个站点，每站点间隔5分钟，首站5:10发车，循环往复
+        本文中的大多数数字是基于5分钟而写出的。-->
+<!--    小车每秒变化一次，实时显示位置，达到站点时该站变为绿色，下一站变为红色-->
+
+
+
+    <script type="text/javascript">
+
+        dojo.require("esri.map");
+        dojo.require("esri.symbols.SimpleLineSymbol");
+        dojo.require("esri.geometry.Polyline");
+        dojo.require("esri.tasks.geometry");
+        dojo.require("esri.layers.graphics");
+        dojo.require("esri.geometry.Point");
+        dojo.require("esri.symbols.Font");
+        dojo.require("esri.tasks.BufferParameters");
+        dojo.require("esri.tasks.RelationParameters");
+        dojo.require("esri.toolbars.draw");
+        var map;
+        var Toolbar;
+        var mydistance = 0.01;
+        var params;
+        function init() {
+            map = new esri.Map("mapdiv", {
+                basemap: "streets",
+                center: [116.397, 39.926],
+                zoom: 13
+            });
+            MapServer = "http://219.225.53.46:6080/arcgis/rest/services/MyMapService/MapServer";
+            var layer = new esri.layers.ArcGISDynamicMapServiceLayer(MapServer);
+            map.addLayer(layer);
+
+            graphicsLayer = new esri.layers.GraphicsLayer();
+            subwayLayer = new esri.layers.GraphicsLayer();
+            //绘制图形开始
+            myGeoService = new esri.tasks.GeometryService("http://219.225.53.46:6080/arcgis/rest/services/Utilities/Geometry/GeometryServer");
+
+            Toolbar = new esri.toolbars.Draw(map,{ showTooltips: true });
+
+            linestyle = new esri.symbol.SimpleLineSymbol(esri.symbol.SimpleLineSymbol.STYLE_SOLID,
+                new esri.Color([205, 38, 38]), 3);
+
+            var myline = {
+
+                "paths": [[
+                    [116.352, 39.948], [116.352, 39.898],
+                    [116.43, 39.898], [116.43, 39.948], [116.352, 39.948],
+
+                ]],
+
+                "spatialReference": {"wkid": 4326}
+            };
+            graphicsLayer.add(new esri.Graphic(new esri.geometry.Polyline(myline), linestyle));
+
+
+            pointstyle = new esri.symbol.SimpleMarkerSymbol(esri.symbol.SimpleMarkerSymbol.STYLE_CIRCLE, 18,
+
+                new esri.symbol.SimpleLineSymbol(esri.symbol.SimpleLineSymbol.STYLE_SOLID,
+
+                    new esri.Color([0, 178, 238]), 1),
+
+                new esri.Color([0, 178, 238, 1]));
+
+            greenpointstyle   = new esri.symbol.SimpleMarkerSymbol(pointstyle);
+            greenpointstyle.setColor(new esri.Color([0, 255, 0, 1]));
+            redpointstyle  = new esri.symbol.SimpleMarkerSymbol(pointstyle);
+            redpointstyle.setColor(new esri.Color([255, 0, 0, 1]));
+
+            textstyle = new esri.symbol.TextSymbol();
+            textstyle.setColor(new dojo.Color([79, 79, 79]));
+            textstyle.setSize(16);
+            font = new esri.symbol.Font("18pt", esri.symbol.Font.STYLE_ITALIC, esri.symbol.Font.VARIANT_NORMAL, esri.symbol.Font.WEIGHT_BOLD, "Courier");
+            textstyle.setFont(font);
+            textstyle.setOffset(0, -20);
+
+            station = [];
+            station[0] = new esri.geometry.Point({"x": 116.352, "y": 39.948, "spatialReference": {"wkid": 4326}});
+            station[1] = new esri.geometry.Point({"x": 116.352, "y": 39.898, "spatialReference": {"wkid": 4326}});
+            station[2] = new esri.geometry.Point({"x": 116.43, "y": 39.898, "spatialReference": {"wkid": 4326}});
+            station[3] = new esri.geometry.Point({"x": 116.43, "y": 39.948, "spatialReference": {"wkid": 4326}});
+
+
+            graphicsLayer.add(new esri.Graphic(station[0], pointstyle));
+            graphicsLayer.add(new esri.Graphic(station[0], new esri.symbol.TextSymbol(textstyle.setText("西直门"))));
+            graphicsLayer.add(new esri.Graphic(station[1], pointstyle));
+            graphicsLayer.add(new esri.Graphic(station[1], new esri.symbol.TextSymbol(textstyle.setText("长椿街"))));
+            graphicsLayer.add(new esri.Graphic(station[2], pointstyle));
+            graphicsLayer.add(new esri.Graphic(station[2], new esri.symbol.TextSymbol(textstyle.setText("北京站"))));
+            graphicsLayer.add(new esri.Graphic(station[3], pointstyle));
+            graphicsLayer.add(new esri.Graphic(station[3], new esri.symbol.TextSymbol(textstyle.setText("东直门"))));
+
+
+            subwaystyle = new esri.symbol.PictureMarkerSymbol('photo1.jpg', 50,50);
+
+            dojo.require("esri.symbol.SimpleFillSymbol");
+            PolygonSymbol = new esri.symbol.SimpleFillSymbol(
+                esri.symbol.SimpleFillSymbol.STYLE_SOLID,
+                new esri.symbol.SimpleLineSymbol(
+                    esri.symbol.SimpleLineSymbol.STYLE_DASHDOT,
+                    new dojo.Color([84,255,159]), 0.01),
+                new esri.Color([84,255,159,0.6])
+            );
+            map.addLayer(graphicsLayer);
+            map.addLayer(subwayLayer);
+            //绘制图形结束
+            
+            dojo.connect(Toolbar, "onDrawEnd", getbuff)
+
+        }
+        dojo.addOnLoad(init);
+        var nobuffpoint;
+        function getbuff(geometry) {
+            if(geometry.type === "point"){
+                nobuffpoint = geometry;
+                Toolbar.deactivate();
+                var graphicpoint = new esri.Graphic(geometry,pointstyle);
+                params = new esri.tasks.BufferParameters();
+                params.distances = [mydistance];
+                // params.unit = esri.tasks.GeometryService.UNIT_KILOMETER;
+                params.outSpatialReference = new esri.SpatialReference(4326);
+                params.bufferSpatialReference = new esri.SpatialReference(4326);
+                params.geometries = [geometry];
+                myGeoService.buffer(params, buffsuc,function (){alert("错误")});
+                graphicsLayer.add(graphicpoint);
+            }
+
+        }
+
+        function buffsuc(geometries) {
+            if (geometries.length > 0) {
+                dojo.forEach(geometries, function (element, index) {
+
+                    var relationParams = new esri.tasks.RelationParameters();
+                    relationParams.geometries1 = station;
+                    relationParams.geometries2 = [element];
+                    relationParams.relation = esri.tasks.RelationParameters.SPATIAL_REL_TOUCHES;
+                    myGeoService.relation(relationParams, function (idResults) {
+                        if (idResults.length > 0) {
+                            dojo.forEach(idResults, function (relation, i) {
+                            })
+                        } else {
+                                mydistance += 0.01;
+                                getbuff(nobuffpoint)
+                        }
+
+                    })
+                    var graphic = new esri.Graphic(element, PolygonSymbol);
+                    graphicsLayer.add(graphic);
+                })
+            }
+            else
+            {
+                alert("没有几何体！");
+            }
+        }
+
+            function DrawPointGraphic() {
+                Toolbar.activate(esri.toolbars.Draw.POINT);
+            }
+
+    </script>
+
+    <script type="text/javascript">
+        function line_startTime(temph,tempm) {
+            var _h = temph;
+            var _m = tempm;
+            this.getstarth = function (){
+                return _h;
+            };
+            this.getstartm = function () {
+                return _m;
+            }
+        }
+        stationline1 = new line_startTime(5,10);
+        stationline2 = new line_startTime(5,22);
+
+
+        window.onload=function() {
+            setInterval(show_nowtime, 1000);
+        };
+
+    var stationName = [];
+    stationName[0] = "西直门";stationName[1] = "长椿街";stationName[2] = "北京站";stationName[3] = "东直门";
+    var theh,them;
+    var nowtime,beginx,beginy;
+    var num = 0;  var orederinwanttime=0;
+    var speed ;
+    var subway;
+    var prem;
+    var tempnum =-1;
+
+    var today,h,m;
+    function show_nowtime() {
+    today = new Date();
+    h = today.getHours();
+    m = today.getMinutes();
+
+    var sec = today.getSeconds();
+    m = checkTime(m);
+    sec = checkTime(sec);
+    dojo.byId("time").innerHTML = (h+":"+m+":"+sec);
+    function checkTime(i){
+    if(i<10){
+    i = "0"+i;
+    }
+    return i
+    }
+        //calculate函数methods 相差时 相差分钟
+
+            // if(number == 1) {                         //后续可以增加多条列车线。
+            var h1 = stationline1.getstarth();
+            var m1 = stationline1.getstartm();
+
+            // }
+            // else{
+            // var h1 = stationline2.getstarth();
+            // var m1 = stationline2.getstartm();
+            // }
+            if (m1 <= m) {
+                theh = h - h1;
+                them = m - m1;
+            }
+            else{
+                theh = today.getHours() - h1-1;
+                them = today.getMinutes()+60-m1;
+            }
+            // dojo.byId("test").innerHTML =(theh+":"+them);
+            // this.geth = function () {
+            //     return theh;
+            // };
+            // this.getm = function () {
+            //     return them;
+            // };
+
+        //计算前一站，后一站时刻
+            orederinwanttime++;
+            var temp =((12*theh+Math.floor(them/5))*5);
+            var preh =5+Math.floor(temp/60);
+
+            prem =10+Math.floor(temp%60);
+            if(prem>=60){preh++;prem =prem-60};
+
+            dojo.byId("pre").innerHTML =(preh+":"+prem);
+            if(prem<55)
+                dojo.byId("post").innerHTML =(preh+":"+(prem+5));
+            else
+                dojo.byId("post").innerHTML =((preh+1)+":"+(prem+5-60));
+
+            num = (temp/5)%4;          //地铁站个数，4个一圈
+        dojo.byId("test").innerHTML =(temp+":"+Math.floor(temp%60));
+            if(num!=3){
+                dojo.byId("prename").innerHTML=stationName[num];
+                dojo.byId("postname").innerHTML=stationName[num+1];
+            }
+            else {
+                dojo.byId("prename").innerHTML=stationName[3];
+                dojo.byId("postname").innerHTML=stationName[0];
+            }
+
+
+            // dojo.byId("test").innerHTML=num;
+            if(num!= 3){
+                var point1 = station[num];
+                var point2 = station[num+1];}
+            else {
+                var point1 = station[3];
+                var point2 = station[0];}
+
+            var x1 = point1.getLongitude();
+            var y1 =point1.getLatitude();
+            var x2 =point2.getLongitude();
+            var y2 =point2.getLatitude();
+
+            beginx=x1+(x2-x1)*(m-prem)/5;
+            beginy=y1+(y2-y1)*(m-prem)/5;
+
+            if(orederinwanttime ==1)
+                addfirstlocation();
+
+            if(tempnum!= num) play(orederinwanttime);
+            tempnum = num;
+
+    }
+
+        function addfirstlocation() {
+            subway = new esri.geometry.Point({ "x": beginx, "y": beginy, "spatialReference": { "wkid": 4326 } });
+            subwayLayer.add(new esri.Graphic(subway, subwaystyle));
+
+    }
+
+        var xx,yy;
+        function insert(station1,station2) {
+            xx = station2.getLongitude()-station1.getLongitude();
+            yy = station2.getLatitude()-station1.getLatitude();
+            var temppx = station1.getLongitude();
+            var temppy = station1.getLatitude();
+            setInterval(function () {
+               subwayLayer.clear();
+               temppx = temppx+xx/speed;
+               temppy = temppy+yy/speed;
+                var changedsubway = new esri.geometry.Point({ "x": temppx, "y": temppy, "spatialReference": { "wkid": 4326 } });
+                subwayLayer.add(new esri.Graphic(changedsubway, subwaystyle));
+            },1000);
+
+        }
+        //最关键的就是根据num值的改变调用play
+        function play(order){
+            if(num ==0)
+            subwaystyle.setAngle(180);
+            else if(num ==1)
+                subwaystyle.setAngle(90);
+            else if(num ==2)
+                subwaystyle.setAngle(0);
+            else if(num ==3)
+                subwaystyle.setAngle(270);
+
+            changecolor();
+            switch (order) {
+                case 1: {
+                    speed = 300-(m-prem)*60-today.getSeconds();
+                    if (num != 3)
+                    {
+                        insert(subway, station[num+1]);}
+
+                    else
+                        insert(subway, station[0]);
+                }
+                    break;
+                default : {
+                    speed =300;
+                    if (num != 3) {
+                        insert(station[num], station[num+1]);
+                    } else
+                        insert(station[3], station[0]);
+                }
+                    break;
+            }
+
+        }
+
+        function changecolor() {
+            var tempprrrr,tempppre,tempppost;
+            switch(num) {
+                case 3: {
+                    tempprrrr = new esri.Graphic(station[2],pointstyle);
+                    graphicsLayer.add(tempprrrr);
+                    tempppre = new esri.Graphic(station[3], greenpointstyle);
+                    graphicsLayer.add(tempppre)
+                    tempppost = new esri.Graphic(station[0], redpointstyle);
+                    graphicsLayer.add(tempppost)
+                }break;
+                case 0:
+                {
+                    tempprrrr = new esri.Graphic(station[3], pointstyle);
+                    graphicsLayer.add(tempprrrr);
+                    tempppre = new esri.Graphic(station[0], greenpointstyle);
+                    graphicsLayer.add(tempppre);
+                    tempppost = new esri.Graphic(station[1], redpointstyle);
+                    graphicsLayer.add(tempppost)
+                } break;
+                default: {
+                    tempprrrr = new esri.Graphic(station[num - 1], pointstyle);
+                    graphicsLayer.add(tempprrrr);
+                    tempppre = new esri.Graphic(station[num], greenpointstyle);
+                    graphicsLayer.add(tempppre);
+                    tempppost = new esri.Graphic(station[num + 1], redpointstyle);
+                    graphicsLayer.add(tempppost)
+                }  ;break;
+            }
+            dojo.connect(map,"onExtentChange",changecolor)
+        }
+        
+
+
+    </script>
+
+
+</head>
+<body class="tundra">
+<div data-dojo-type="dijit/layout/BorderContainer" data-dojo-props="design:'headline',gutters:false" id="main">
+    <div data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region:'top'"
+         style="height: 120px;width: 100%;" class="TitleClass">
+        <tr>
+            <td><div id="icon"></div></td>
+            <td id="welcome"><li style="margin-left:40px;margin-top: 60px;text-align: left;font-size: 40px;color: #022b94;text-shadow: 4px 4px 10px darkgrey"><b>北京2号线欢迎您</b></li></td>
+            <td id="clock">
+                <div>当前运行时刻</div>
+                <div>
+                    <li><ul id="pre"></ul><ul id="prename"></ul></li>
+                    <li><ul>→→</ul><ul>→→</ul></li>
+                    <li><ul id="post"></ul><ul id="postname"></ul></li>
+                </div>
+        </td>
+        </tr>
+    </div>
+    <div data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region:'left', splitter:'true'"
+         style="background-color: #FFFFFF; width: 150px;">
+        <div id="test"></div>
+    </div>
+    <div id="mapdiv" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region:'center'">
+    </div>
+    <div data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region:'right', splitter:'true'"
+         style="background-color: #FFFFFF; width: 150px;">
+        <input type="button" value="定位位置" onclick="DrawPointGraphic()">
+    </div>
+    <div  data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region:'bottom', splitter:'true'" style="background-color: #fffcbb; height: 20px">
+        <li>当前时间: </li><li id="time"></li></div>
+</div>
+
+</body>
+</html>
