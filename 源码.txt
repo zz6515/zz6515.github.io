@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>±±¾©ÊÐÕþ¹«½»ÏßÂ·Í¼</title>
+    <title>åŒ—äº¬å¸‚æ”¿å…¬äº¤çº¿è·¯å›¾</title>
     <link rel="stylesheet" type="text/css" href="tundra.css" />
     <link rel="stylesheet" type="text/css" href="esri.css" />
     <meta charset="utf-8" />
@@ -70,12 +70,6 @@
     </script>
 
 
-<!--    ±¾ÎÄÖÐ£¬Éè¶¨¶þºÅÏßËÄ¸öÕ¾µã£¬Ã¿Õ¾µã¼ä¸ô5·ÖÖÓ£¬Ê×Õ¾5:10·¢³µ£¬Ñ­»·Íù¸´
-        ±¾ÎÄÖÐµÄ´ó¶àÊýÊý×ÖÊÇ»ùÓÚ5·ÖÖÓ¶øÐ´³öµÄ¡£-->
-<!--    Ð¡³µÃ¿Ãë±ä»¯Ò»´Î£¬ÊµÊ±ÏÔÊ¾Î»ÖÃ£¬´ïµ½Õ¾µãÊ±¸ÃÕ¾±äÎªÂÌÉ«£¬ÏÂÒ»Õ¾±äÎªºìÉ«-->
-
-
-
     <script type="text/javascript">
 
         dojo.require("esri.map");
@@ -106,7 +100,7 @@
 
             graphicsLayer = new esri.layers.GraphicsLayer();
             subwayLayer = new esri.layers.GraphicsLayer();
-            //»æÖÆÍ¼ÐÎ¿ªÊ¼
+            //ç»˜åˆ¶å›¾å½¢å¼€å§‹
             myGeoService = new esri.tasks.GeometryService("http://219.225.53.46:6080/arcgis/rest/services/Utilities/Geometry/GeometryServer");
 
             Toolbar = new esri.toolbars.Draw(map,{ showTooltips: true });
@@ -153,16 +147,16 @@
             station[2] = new esri.geometry.Point({"x": 116.43, "y": 39.898, "spatialReference": {"wkid": 4326}});
             station[3] = new esri.geometry.Point({"x": 116.43, "y": 39.948, "spatialReference": {"wkid": 4326}});
             stationName = [];
-            stationName[0] = "Î÷Ö±ÃÅ";stationName[1] = "³¤´»½Ö";stationName[2] = "±±¾©Õ¾";stationName[3] = "¶«Ö±ÃÅ";
+            stationName[0] = "è¥¿ç›´é—¨";stationName[1] = "é•¿æ¤¿è¡—";stationName[2] = "åŒ—äº¬ç«™";stationName[3] = "ä¸œç›´é—¨";
 
             graphicsLayer.add(new esri.Graphic(station[0], pointstyle));
-            graphicsLayer.add(new esri.Graphic(station[0], new esri.symbol.TextSymbol(textstyle.setText("Î÷Ö±ÃÅ"))));
+            graphicsLayer.add(new esri.Graphic(station[0], new esri.symbol.TextSymbol(textstyle.setText("è¥¿ç›´é—¨"))));
             graphicsLayer.add(new esri.Graphic(station[1], pointstyle));
-            graphicsLayer.add(new esri.Graphic(station[1], new esri.symbol.TextSymbol(textstyle.setText("³¤´»½Ö"))));
+            graphicsLayer.add(new esri.Graphic(station[1], new esri.symbol.TextSymbol(textstyle.setText("é•¿æ¤¿è¡—"))));
             graphicsLayer.add(new esri.Graphic(station[2], pointstyle));
-            graphicsLayer.add(new esri.Graphic(station[2], new esri.symbol.TextSymbol(textstyle.setText("±±¾©Õ¾"))));
+            graphicsLayer.add(new esri.Graphic(station[2], new esri.symbol.TextSymbol(textstyle.setText("åŒ—äº¬ç«™"))));
             graphicsLayer.add(new esri.Graphic(station[3], pointstyle));
-            graphicsLayer.add(new esri.Graphic(station[3], new esri.symbol.TextSymbol(textstyle.setText("¶«Ö±ÃÅ"))));
+            graphicsLayer.add(new esri.Graphic(station[3], new esri.symbol.TextSymbol(textstyle.setText("ä¸œç›´é—¨"))));
 
 
             subwaystyle = new esri.symbol.PictureMarkerSymbol('photo1.jpg', 50,50);
@@ -177,7 +171,7 @@
             );
             map.addLayer(graphicsLayer);
             map.addLayer(subwayLayer);
-            //»æÖÆÍ¼ÐÎ½áÊø
+            //ç»˜åˆ¶å›¾å½¢ç»“æŸ
             
             dojo.connect(Toolbar, "onDrawEnd", shortestdistance);
 
@@ -256,9 +250,9 @@
     }
     return i
     }
-        //calculateº¯Êýmethods Ïà²îÊ± Ïà²î·ÖÖÓ
+        //calculateå‡½æ•°methods ç›¸å·®æ—¶ ç›¸å·®åˆ†é’Ÿ
 
-            // if(number == 1) {                         //ºóÐø¿ÉÒÔÔö¼Ó¶àÌõÁÐ³µÏß¡£
+            // if(number == 1) {                         //åŽç»­å¯ä»¥å¢žåŠ å¤šæ¡åˆ—è½¦çº¿ã€‚
             var h1 = stationline1.getstarth();
             var m1 = stationline1.getstartm();
 
@@ -283,7 +277,7 @@
             //     return them;
             // };
 
-        //¼ÆËãÇ°Ò»Õ¾£¬ºóÒ»Õ¾Ê±¿Ì
+        //è®¡ç®—å‰ä¸€ç«™ï¼ŒåŽä¸€ç«™æ—¶åˆ»
             orederinwanttime++;
             var temp =((12*theh+Math.floor(them/5))*5);
             var preh =5+Math.floor(temp/60);
@@ -297,7 +291,7 @@
             else
                 dojo.byId("post").innerHTML =((preh+1)+":"+(prem+5-60));
 
-            num = (temp/5)%4;          //µØÌúÕ¾¸öÊý£¬4¸öÒ»È¦
+            num = (temp/5)%4;          //åœ°é“ç«™ä¸ªæ•°ï¼Œ4ä¸ªä¸€åœˆ
 
             if(num!=3){
                 dojo.byId("prename").innerHTML=stationName[num];
@@ -354,7 +348,7 @@
             },1000);
 
         }
-        //×î¹Ø¼üµÄ¾ÍÊÇ¸ù¾ÝnumÖµµÄ¸Ä±äµ÷ÓÃplay
+        //æœ€å…³é”®çš„å°±æ˜¯æ ¹æ®numå€¼çš„æ”¹å˜è°ƒç”¨play
         function play(order){
             if(num ==0)
             subwaystyle.setAngle(180);
@@ -433,12 +427,12 @@
          style="height: 120px;width: 100%;" class="TitleClass">
         <tr>
             <td><div id="icon"></div></td>
-            <td id="welcome"><li style="margin-left:40px;margin-top: 60px;text-align: left;font-size: 40px;color: #022b94;text-shadow: 4px 4px 10px darkgrey"><b>±±¾©2ºÅÏß»¶Ó­Äú</b></li></td>
+            <td id="welcome"><li style="margin-left:40px;margin-top: 60px;text-align: left;font-size: 40px;color: #022b94;text-shadow: 4px 4px 10px darkgrey"><b>åŒ—äº¬2å·çº¿æ¬¢è¿Žæ‚¨</b></li></td>
             <td id="clock">
-                <div>µ±Ç°ÔËÐÐÊ±¿Ì</div>
+                <div>å½“å‰è¿è¡Œæ—¶åˆ»</div>
                 <div>
                     <li><ul id="pre"></ul><ul id="prename"></ul></li>
-                    <li><ul>¡ú¡ú</ul><ul>¡ú¡ú</ul></li>
+                    <li><ul>â†’â†’</ul><ul>â†’â†’</ul></li>
                     <li><ul id="post"></ul><ul id="postname"></ul></li>
                 </div>
         </td>
@@ -452,15 +446,15 @@
     </div>
     <div data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region:'right', splitter:'true'"
          style="background-color: #FFFFFF; width: 200px;">
-        <input type="button" style="margin-left: 6px" value="¶¨Î»ÉÏ³µÎ»ÖÃ" onclick="DrawPointGraphic()">
+        <input type="button" style="margin-left: 6px" value="å®šä½ä¸Šè½¦ä½ç½®" onclick="DrawPointGraphic()">
         <div class="rightshow">
-            <p class="frame">¾àµ±Ç°×î½üÕ¾µã</p>
+            <p class="frame">è·å½“å‰æœ€è¿‘ç«™ç‚¹</p>
             <div id="shortest" class="frame"></div>
     </div>
       
     </div>
     <div  data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region:'bottom', splitter:'true'" style="background-color: #fffcbb; height: 20px">
-        <li>µ±Ç°Ê±¼ä: </li><li id="time"></li></div>
+        <li>å½“å‰æ—¶é—´: </li><li id="time"></li></div>
 </div>
 
 </body>
