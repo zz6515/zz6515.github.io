@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -43,6 +43,28 @@
         {
             border-bottom: 2px solid darkgrey;
         }
+        .frame{
+            padding-bottom: 2px;
+            width: 120px;
+            border-bottom:solid 2px;
+            border-bottom-color: #3272CE;
+            
+        }
+        .rightshow{
+            margin-top: 4px;
+            margin-right: 4px;
+            margin-left: 6px;
+            border-style: solid;
+            border-color: #0000ff;
+            border-width: 1px;
+          
+            padding-left: 40px;
+            padding-bottom: 10px;
+            padding-top: 4px;
+        }
+
+        
+
     </style>
     <script type="text/javascript" src="init.js">
     </script>
@@ -70,16 +92,22 @@
         var Toolbar;
         var mydistance = 0.01;
         var params;
+        var tnum;
+        var tempbi=100000;
         function init() {
             map = new esri.Map("mapdiv", {
                 basemap: "streets",
                 center: [116.397, 39.926],
                 zoom: 13
             });
+            MapServer = "http://219.225.53.46:6080/arcgis/rest/services/MyMapService/MapServer";
+            var layer = new esri.layers.ArcGISDynamicMapServiceLayer(MapServer);
+            map.addLayer(layer);
+
             graphicsLayer = new esri.layers.GraphicsLayer();
             subwayLayer = new esri.layers.GraphicsLayer();
             //绘制图形开始
-            myGeoService = new esri.tasks.GeometryService("https://utility.arcgisonline.com/ArcGIS/rest/services/Geometry/GeometryServer");
+            myGeoService = new esri.tasks.GeometryService("http://219.225.53.46:6080/arcgis/rest/services/Utilities/Geometry/GeometryServer");
 
             Toolbar = new esri.toolbars.Draw(map,{ showTooltips: true });
 
@@ -124,7 +152,8 @@
             station[1] = new esri.geometry.Point({"x": 116.352, "y": 39.898, "spatialReference": {"wkid": 4326}});
             station[2] = new esri.geometry.Point({"x": 116.43, "y": 39.898, "spatialReference": {"wkid": 4326}});
             station[3] = new esri.geometry.Point({"x": 116.43, "y": 39.948, "spatialReference": {"wkid": 4326}});
-
+            stationName = [];
+            stationName[0] = "西直门";stationName[1] = "长椿街";stationName[2] = "北京站";stationName[3] = "东直门";
 
             graphicsLayer.add(new esri.Graphic(station[0], pointstyle));
             graphicsLayer.add(new esri.Graphic(station[0], new esri.symbol.TextSymbol(textstyle.setText("西直门"))));
@@ -150,59 +179,38 @@
             map.addLayer(subwayLayer);
             //绘制图形结束
             
-            dojo.connect(Toolbar, "onDrawEnd", getbuff)
+            dojo.connect(Toolbar, "onDrawEnd", shortestdistance);
 
         }
         dojo.addOnLoad(init);
-        var nobuffpoint;
-        function getbuff(geometry) {
-            if(geometry.type === "point"){
-                nobuffpoint = geometry;
-                Toolbar.deactivate();
-                var graphicpoint = new esri.Graphic(geometry,pointstyle);
-                params = new esri.tasks.BufferParameters();
-                params.distances = [mydistance];
-                // params.unit = esri.tasks.GeometryService.UNIT_KILOMETER;
-                params.outSpatialReference = new esri.SpatialReference(4326);
-                params.bufferSpatialReference = new esri.SpatialReference(4326);
-                params.geometries = [geometry];
-                myGeoService.buffer(params, buffsuc,function (){alert("错误")});
-                graphicsLayer.add(graphicpoint);
-            }
-
-        }
-
-        function buffsuc(geometries) {
-            if (geometries.length > 0) {
-                dojo.forEach(geometries, function (element, index) {
-
-                    var relationParams = new esri.tasks.RelationParameters();
-                    relationParams.geometries1 = station;
-                    relationParams.geometries2 = [element];
-                    relationParams.relation = esri.tasks.RelationParameters.SPATIAL_REL_TOUCHES;
-                    myGeoService.relation(relationParams, function (idResults) {
-                        if (idResults.length > 0) {
-                            dojo.forEach(idResults, function (relation, i) {
-                            })
-                        } else {
-                                mydistance += 0.01;
-                                getbuff(nobuffpoint)
-                        }
-
-                    })
-                    var graphic = new esri.Graphic(element, PolygonSymbol);
-                    graphicsLayer.add(graphic);
-                })
-            }
-            else
-            {
-                alert("没有几何体！");
-            }
-        }
-
-            function DrawPointGraphic() {
+    
+        function DrawPointGraphic() {
                 Toolbar.activate(esri.toolbars.Draw.POINT);
             }
+
+
+    
+
+    function shortestdistance(geometries){
+        Toolbar.deactivate();
+        userstyle = new esri.symbol.SimpleMarkerSymbol(pointstyle);
+        userstyle.setColor("#3BB540");
+        userstyle.setStyle("STYLE_SQUARE");
+         var graphicpoint = new esri.Graphic(geometries, userstyle);
+            graphicsLayer.add(graphicpoint);
+
+            thex = geometries.getLongitude();
+            they = geometries.getLatitude();
+           
+            dojo.forEach(station,function(element,index){
+                if(  (Math.pow((element.getLongitude()-thex),2)+Math.pow((element.getLatitude()-they),2) )<tempbi   )
+            {
+                    tempbi = Math.pow((element.getLongitude()-thex),2)+Math.pow((element.getLatitude()-they),2);
+                    tnum = index ; 
+            }
+            })
+       dojo.byId("shortest").innerHTML = stationName[tnum];
+    }
 
     </script>
 
@@ -224,9 +232,6 @@
         window.onload=function() {
             setInterval(show_nowtime, 1000);
         };
-
-    var stationName = [];
-    stationName[0] = "西直门";stationName[1] = "长椿街";stationName[2] = "北京站";stationName[3] = "东直门";
     var theh,them;
     var nowtime,beginx,beginy;
     var num = 0;  var orederinwanttime=0;
@@ -440,14 +445,19 @@
         </tr>
     </div>
     <div data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region:'left', splitter:'true'"
-         style="background-color: #FFFFFF; width: 150px;">
+         style="background-color: #FFFFFF; width: 200px;">
 
     </div>
     <div id="mapdiv" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region:'center'">
     </div>
     <div data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region:'right', splitter:'true'"
-         style="background-color: #FFFFFF; width: 150px;">
-        <input type="button" value="定位位置" onclick="DrawPointGraphic()">
+         style="background-color: #FFFFFF; width: 200px;">
+        <input type="button" style="margin-left: 6px" value="定位上车位置" onclick="DrawPointGraphic()">
+        <div class="rightshow">
+            <p class="frame">距当前最近站点</p>
+            <div id="shortest" class="frame"></div>
+    </div>
+      
     </div>
     <div  data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region:'bottom', splitter:'true'" style="background-color: #fffcbb; height: 20px">
         <li>当前时间: </li><li id="time"></li></div>
